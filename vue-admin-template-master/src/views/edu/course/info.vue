@@ -6,12 +6,12 @@
       <el-step title="创建课程大纲"/>
       <el-step title="提交审核"/>
     </el-steps>
-<el-form label-width="120px">
-  <el-form-item label="课程标题">
+<el-form label-width="120px" :model="courseInfo" :rules="rules" ref="courseInfo">
+  <el-form-item label="课程标题" prop="title">
     <el-input v-model="courseInfo.title" placeholder=" 示例：机器学习项目课：从基础到搭建项目视频课程。专业名称注意大小写"/>
   </el-form-item>
   <!-- 所属分类 -->
-  <el-form-item label="课程分类">
+  <el-form-item label="课程分类" prop="subjectParentId">
   <el-select v-model="courseInfo.subjectParentId" placeholder="一级分类" @change="subjectOnChange">
     <el-option
       v-for="subject in subjectOneList"
@@ -29,7 +29,7 @@
 </el-form-item>
 
   <!-- 课程讲师 下拉列表 -->
-<el-form-item label="课程讲师">
+<el-form-item label="课程讲师" prop="teacherId">
   <el-select v-model="courseInfo.teacherId" placeholder="请选择">
     <el-option
       v-for="teacher in teacherList"
@@ -39,11 +39,11 @@
   </el-select>
 </el-form-item>
 
-  <el-form-item label="总课时">
+  <el-form-item label="总课时" prop="lessonNum">
     <el-input-number :min="0" v-model="courseInfo.lessonNum" controls-position="right" placeholder="请填写课程的总课时数"/>
   </el-form-item>
   <!-- 课程简介 TODO --> 
-  <el-form-item label="课程简介">
+  <el-form-item label="课程简介" prop="description">
     <tinymce :height="300" v-model="courseInfo.description"/>
   </el-form-item>
 
@@ -60,11 +60,11 @@
   </el-upload>
 </el-form-item>
 
-  <el-form-item label="课程价格">
+  <el-form-item label="课程价格" prop="price">
     <el-input-number :min="0" v-model="courseInfo.price" controls-position="right" placeholder="免费课程请设置为0元"/> 元
   </el-form-item>
   <el-form-item>
-    <el-button :disabled="saveBtnDisabled" type="primary" @click="saveOrUpdate()">保存并下一步</el-button>
+    <el-button :disabled="saveBtnDisabled" type="primary" @click="saveOrUpdate('courseInfo')">保存并下一步</el-button>
   </el-form-item>
 </el-form>
   </div>
@@ -87,6 +87,26 @@ export default {
                 cover: '/static/654259.jpg',
                 price: 0,
                 subjectParentId:''//二级分类
+            },
+            rules:{
+                 title: [
+                   { required: true, message: '请输入课程标题', trigger: 'blur' },
+                   { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
+                 ],
+                teacherId:  [{ required: true, message: '请选择讲师', trigger: 'change' }],
+                lessonNum: [
+                  { required: true, message: "请输入课时", trigger: "blur" },
+                  { type: "number", message: "课时必须为整数" }
+                ],
+                 price: [
+                   { required: true, message: "请输入价格", trigger: "blur" },
+                    { type: "number", message: "金额必须为整数" }
+                  ],
+                description: [
+                   { required: true, message: '请输入课程描述', trigger: 'blur' },
+                   { min: 1, max: 4000, message: '长度在 1 到 4000 个字符', trigger: 'blur' }
+                 ],
+                subjectParentId:[{ required: true, message: '请选择课程分类', trigger: 'change' }]//二级分类
             },
             courseId:'',
             BASE_API:process.env.BASE_API,//接口API地址
@@ -212,13 +232,22 @@ export default {
            this.$router.push({path:'/course/chapter/'+this.courseId})
         })
       },
-      saveOrUpdate(){
-          if(!this.courseInfo.id){
-              this.addCourse()
-          }else{
-            this.updateCourse()
+      saveOrUpdate(courseInfo){
+       this.$refs[courseInfo].validate((valid) => {
+          if (valid) {
+              if(!this.courseInfo.id){
+                 this.addCourse()
+              }else{
+                this.updateCourse()
+              }
+          } else {
+            alert('请正确填写信息');
+            return false;
           }
-      }
+        });
+          
+      },
+
   }
 }
 </script>

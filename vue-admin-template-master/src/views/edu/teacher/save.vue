@@ -1,13 +1,13 @@
 <template>
     <div class="app-container">    
-    <el-form label-width="120px">
-      <el-form-item label="讲师名称">
-        <el-input v-model="teacher.name" maxlength="20"  :rules="rules"/>
+    <el-form label-width="120px" :model="teacher" :rules="rules" ref="teacher">
+      <el-form-item label="讲师名称" prop="name">
+        <el-input v-model="teacher.name" maxlength="20"/>
       </el-form-item>
-      <el-form-item label="讲师排序">
-        <el-input-number v-model="teacher.sort" controls-position="right" :min="0"/>
+      <el-form-item label="讲师排序" prop="sort">
+        <el-input-number v-model.number="teacher.sort" controls-position="right" :min="0"/>
       </el-form-item>
-      <el-form-item label="讲师头衔">
+      <el-form-item label="讲师头衔" prop="level">
         <el-select v-model="teacher.level" clearable placeholder="请选择">
           <!--
             数据类型一定要和取出的json中的一致，否则没法回填
@@ -17,10 +17,10 @@
           <el-option :value="2" label="首席讲师"/>
         </el-select>
       </el-form-item>
-      <el-form-item label="讲师资历">
+      <el-form-item label="讲师资历" prop="career">
         <el-input v-model="teacher.career"/>
       </el-form-item>
-      <el-form-item label="讲师简介">
+      <el-form-item label="讲师简介" prop="intro">
         <el-input v-model="teacher.intro" :rows="10" type="textarea"/>
       </el-form-item>
       
@@ -53,7 +53,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button :disabled="saveBtnDisabled" type="primary" @click="saveOrUpdate">保存</el-button>
+        <el-button :disabled="saveBtnDisabled" type="primary" @click="saveOrUpdate('teacher')">保存</el-button>
       </el-form-item>
     </el-form>
     </div>
@@ -71,7 +71,7 @@ export default {
                 name: '',
                 sort: 0,
                 level: 1,
-                career: '',
+                sort: '',
                 intro: '',
                 avatar: ''
             },
@@ -79,7 +79,27 @@ export default {
             imagecropperShow:false,
             imagecropperKey:0,//上传组件key值
             BASE_API:process.env.BASE_API,//获取dev.env.js中的地址
-            saveBtnDisabled:false// 保存按钮是否禁用
+            saveBtnDisabled:false,// 保存按钮是否禁用
+            rules:{
+                name: [
+                   { required: true, message: '请输入课讲师名称', trigger: 'blur' },
+                   { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
+                ],
+                sort: [
+                    { required: true, message: "请输入讲师排序", trigger: "blur" },
+                    { type: "number", message: "排序必须为整数" }
+                ],
+                level: [{ required: true, message: '请选择讲师头衔', trigger: 'change' }],
+                career:[
+                  { required: true, message: '请输入课讲师资历', trigger: 'blur' },
+                  { min: 1, max: 500, message: '长度在 1 到 500 个字符', trigger: 'blur' }
+                ],
+                intro:[
+                  { required: true, message: '请输入课讲师简介', trigger: 'blur' },
+                  { min: 1, max: 500, message: '长度在 1 到 500 个字符', trigger: 'blur' }
+                ]
+                
+            },
         }
     },
     created(){// 页面渲染之前执行
@@ -124,15 +144,21 @@ export default {
             )
         },
         // 添加讲师
-        saveOrUpdate(){
-            // 判断是修改还是添加
+        saveOrUpdate(teacher){
+            this.$refs[teacher].validate((valid) => {
+          if (valid) {
+             // 判断是修改还是添加
             // 根据teacher是否有ID
             if (!this.teacher.id) {
                 this.saveTeacher()
             }else{
                 this.uodateTeacher()
             }
-           
+          } else {
+            alert('请正确填写信息');
+            return false;
+          }
+        });  
         },
         // 修改讲师
         uodateTeacher(){

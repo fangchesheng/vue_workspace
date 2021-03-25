@@ -7,8 +7,6 @@
       </el-form-item>
       <el-form-item label="课程状态">
         <el-select v-model="courseQuery.status" clearable placeholder="课程状态">
-          <!-- <el-option :value="Normal" label="已发布"/>
-          <el-option :value="Draft" label="未发布"/> -->
           <el-option :value="1" label="已发布"/>
           <el-option :value="2" label="未发布"/>
         </el-select>
@@ -17,16 +15,10 @@
       <el-button type="default" @click="resetData()">清空</el-button>
     </el-form>
     <!-- 表格 -->
-    <el-table
-      :data="list"
-       :row-class-name="tableRowClassName"
-      element-loading-text="数据加载中"
-      border
-      fit
-      highlight-current-row>
+    <el-table :data="list" :row-class-name="tableRowClassName" element-loading-text="数据加载中"  border  fit highlight-current-row>
       <el-table-column
         label="序号"
-        width="70"
+        width="40"
         align="center">
         <template slot-scope="scope">
           {{ (page - 1) * limit + scope.$index + 1 }}
@@ -38,10 +30,10 @@
           {{ scope.row.status==='Normal'?'已发布':'未发布' }}
         </template>
       </el-table-column>
-      <el-table-column prop="lessonNum" label="课时数" width="180"/>
-      <el-table-column prop="gmtCreate" label="添加时间" width="180"/>
+      <el-table-column prop="lessonNum" label="课时数" width="160"/>
+      <el-table-column prop="gmtCreate" label="添加时间" width="170"/>
       <el-table-column prop="viewCount" label="浏览数量" width="180" />
-      <el-table-column label="操作" width="300" align="center">
+      <el-table-column label="操作" width="350" align="center">
         <template slot-scope="scope">
           <router-link :to="'/course/info/'+scope.row.id">
             <el-button type="primary" size="mini" icon="el-icon-edit">编辑信息</el-button>
